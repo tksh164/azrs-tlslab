@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -33,6 +34,8 @@ namespace tlslab2
             var authContextUrl = vaultCredentialsData.AadAuthority + "/" + vaultCredentialsData.AadTenantId;
             var httpClientHandler = new HttpClientHandler()
             {
+                SslProtocols = SslProtocols.Tls12,  // Set the TLS version used to communication with Azure AD.
+                UseProxy = true,
                 Proxy = new WebProxy(string.Format("{0}:{1}", proxyAddress, proxyPort)),
                 //UseDefaultCredentials = true,
             };
