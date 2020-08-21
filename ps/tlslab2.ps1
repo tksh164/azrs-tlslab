@@ -55,13 +55,8 @@ $scriptParams = @{
 
 # Print the parameters.
 Write-Host ('VaultCredentials file: {0}' -f $scriptParams.VaultCredentialsFilePath)
-$proxyAddressPort = $null
-if ($PSBoundParameters.ContainsKey('ProxyAddress') -and $PSBoundParameters.ContainsKey('ProxyPort'))
-{
-    Write-Host ('Proxy address: {0}' -f $scriptParams.ProxyAddress)
-    Write-Host ('Proxy port: {0}' -f $scriptParams.ProxyPort)
-    $proxyAddressPort = ('{0}:{1}' -f $scriptParams.ProxyAddress, $scriptParams.ProxyPort)
-}
+$proxyText = if ($scriptParams.UseProxy) { '{0}:{1}' -f $scriptParams.ProxyAddress, $scriptParams.ProxyPort } else { 'no proxy' }
+Write-Host ('Proxy: {0}' -f $proxyText)
 
 # Read the *.VaultCredentials file.
 [xml] $vaultCredentialsFileData = Get-Content -LiteralPath $scriptParams.VaultCredentialsFilePath -Encoding utf8
@@ -72,9 +67,10 @@ $base64EncodedCertBytes = [Convert]::FromBase64String($vaultCredentialsFileData.
 
 # Create an authenticate context.
 $httpClientHandler = New-Object -TypeName 'System.Net.Http.HttpClientHandler'
-if ($proxyAddressPort -ne $null)
+if ($scriptParams.UseProxy)
 {
-    $httpClientHandler.Proxy = New-Object -TypeName 'System.Net.WebProxy' -ArgumentList $proxyAddressPort
+    # Set the proxy IP address and port for the authenticate communication with Azure AD.
+    $httpClientHandler.Proxy = New-Object -TypeName 'System.Net.WebProxy' -ArgumentList ('{0}:{1}' -f $scriptParams.ProxyAddress, $scriptParams.ProxyPort)
 }
 $httpClientFactory = New-Object -TypeName 'AdalHttpClientFactory' -ArgumentList $httpClientHandler
 $authContrxtUrl = $aadAuthority + '/' + $aadTenantId
