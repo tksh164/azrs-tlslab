@@ -67,6 +67,7 @@ $base64EncodedCertBytes = [Convert]::FromBase64String($vaultCredentialsFileData.
 
 # Create an authenticate context.
 $httpClientHandler = New-Object -TypeName 'System.Net.Http.HttpClientHandler'
+$httpClientHandler.UseProxy = $scriptParams.UseProxy
 if ($scriptParams.UseProxy)
 {
     # Set the proxy IP address and port for the authenticate communication with Azure AD.
