@@ -78,14 +78,14 @@ $httpClientFactory = New-Object -TypeName 'AdalHttpClientFactory' -ArgumentList 
 $authContrxtUrl = $aadAuthority + '/' + $aadTenantId
 $authContext = New-Object -TypeName 'Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext' -ArgumentList $authContrxtUrl, $false, $null, $httpClientFactory
 
-# Create a credential.
+# Create a credential for acquire token.
 $managementCert = New-Object -TypeName 'System.Security.Cryptography.X509Certificates.X509Certificate2'
 $managementCert.Import($base64EncodedCertBytes)
 $credental = New-Object -TypeName 'Microsoft.IdentityModel.Clients.ActiveDirectory.ClientAssertionCertificate' -ArgumentList $clientId, $managementCert
 
 try
 {
-    # Retrieve the access token from Azure AD.
+    # Get the access token from Azure AD.
     $resource = 'https://management.azure.com/'
     $result = $authContext.AcquireTokenAsync($resource, $credental)
     $result.Wait()
