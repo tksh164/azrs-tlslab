@@ -89,8 +89,8 @@ try
     $resource = 'https://management.azure.com/'
     $result = $authContext.AcquireTokenAsync($resource, $credental)
     $result.Wait()
-    Write-Host ''
-    Write-Host ('Access token: {0}' -f $result.Result.AccessToken)
+    $result.Result | Format-List -Property *
+    $result.Result.UserInfo | Format-List -Property *
 }
 catch
 {
