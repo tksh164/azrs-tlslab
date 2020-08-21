@@ -14,7 +14,7 @@ param (
 
 $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 
-# Load ADAL.
+# Load the ADAL.
 $adalDllPath = Join-Path -Path $PSScriptRoot -ChildPath 'Microsoft.IdentityModel.Clients.ActiveDirectory.dll'
 Add-Type -LiteralPath $adalDllPath
 
