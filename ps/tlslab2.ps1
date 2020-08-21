@@ -60,10 +60,12 @@ Write-Host ('Proxy: {0}' -f $proxyText)
 
 # Read the *.VaultCredentials file.
 [xml] $vaultCredentialsFileData = Get-Content -LiteralPath $scriptParams.VaultCredentialsFilePath -Encoding utf8
-$aadAuthority = $vaultCredentialsFileData.RSBackupVaultAADCreds.AadAuthority
-$aadTenantId = $vaultCredentialsFileData.RSBackupVaultAADCreds.AadTenantId
-$clientId = $vaultCredentialsFileData.RSBackupVaultAADCreds.ServicePrincipalClientId
-$base64EncodedCertBytes = [Convert]::FromBase64String($vaultCredentialsFileData.RSBackupVaultAADCreds.ManagementCert)
+$vaultCredentials = @{
+    AadAuthority           = $vaultCredentialsFileData.RSBackupVaultAADCreds.AadAuthority
+    AadTenantId            = $vaultCredentialsFileData.RSBackupVaultAADCreds.AadTenantId
+    ClientId               = $vaultCredentialsFileData.RSBackupVaultAADCreds.ServicePrincipalClientId
+    Base64EncodedCertBytes = [Convert]::FromBase64String($vaultCredentialsFileData.RSBackupVaultAADCreds.ManagementCert)
+}
 
 # Create an authenticate context.
 $httpClientHandler = New-Object -TypeName 'System.Net.Http.HttpClientHandler'
@@ -75,13 +77,13 @@ if ($scriptParams.UseProxy)
     $httpClientHandler.Proxy = New-Object -TypeName 'System.Net.WebProxy' -ArgumentList ('{0}:{1}' -f $scriptParams.ProxyAddress, $scriptParams.ProxyPort)
 }
 $httpClientFactory = New-Object -TypeName 'AdalHttpClientFactory' -ArgumentList $httpClientHandler
-$authContrxtUrl = $aadAuthority + '/' + $aadTenantId
+$authContrxtUrl = $vaultCredentials.AadAuthority + '/' + $vaultCredentials.AadTenantId
 $authContext = New-Object -TypeName 'Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext' -ArgumentList $authContrxtUrl, $false, $null, $httpClientFactory
 
 # Create a credential for acquire token.
 $managementCert = New-Object -TypeName 'System.Security.Cryptography.X509Certificates.X509Certificate2'
-$managementCert.Import($base64EncodedCertBytes)
-$credental = New-Object -TypeName 'Microsoft.IdentityModel.Clients.ActiveDirectory.ClientAssertionCertificate' -ArgumentList $clientId, $managementCert
+$managementCert.Import($vaultCredentials.Base64EncodedCertBytes)
+$credental = New-Object -TypeName 'Microsoft.IdentityModel.Clients.ActiveDirectory.ClientAssertionCertificate' -ArgumentList $vaultCredentials.ClientId, $managementCert
 
 try
 {
