@@ -18,7 +18,9 @@ $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 $adalDllPath = Join-Path -Path $PSScriptRoot -ChildPath 'Microsoft.IdentityModel.Clients.ActiveDirectory.dll'
 Add-Type -LiteralPath $adalDllPath
 
-# Add HttpClientFactory for ADAL.
+# Add the HttpClientFactory class for ADAL.
+try
+{
 Add-Type -TypeDefinition @'
 using System.Net.Http;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -38,6 +40,11 @@ public class AdalHttpClientFactory : IHttpClientFactory
     }
 }
 '@ -Language CSharp -ReferencedAssemblies 'System.Net.Http.dll',$adalDllPath -ErrorAction Continue
+}
+catch
+{
+    if ($Error[0].FullyQualifiedErrorId -ne 'TYPE_ALREADY_EXISTS,Microsoft.PowerShell.Commands.AddTypeCommand') { throw }    
+}
 
 # Print the parameters.
 Write-Host ('VaultCredentials file: {0}' -f $VaultCredentialsFilePath)
