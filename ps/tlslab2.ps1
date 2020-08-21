@@ -46,7 +46,7 @@ catch
     if ($Error[0].FullyQualifiedErrorId -ne 'TYPE_ALREADY_EXISTS,Microsoft.PowerShell.Commands.AddTypeCommand') { throw }    
 }
 
-$scriptParams = @{
+$scriptParams = [PSCustomObject] @{
     VaultCredentialsFilePath = $VaultCredentialsFilePath
     UseProxy                 = $PSBoundParameters.ContainsKey('ProxyAddress') -and $PSBoundParameters.ContainsKey('ProxyPort')
     ProxyAddress             = if ($PSBoundParameters.ContainsKey('ProxyAddress')) { $ProxyAddress } else { $null }
@@ -60,7 +60,7 @@ Write-Host ('Proxy: {0}' -f $proxyText)
 
 # Read the *.VaultCredentials file.
 [xml] $vaultCredentialsFileData = Get-Content -LiteralPath $scriptParams.VaultCredentialsFilePath -Encoding utf8
-$vaultCredentials = @{
+$vaultCredentials = [PSCustomObject] @{
     AadAuthority           = $vaultCredentialsFileData.RSBackupVaultAADCreds.AadAuthority
     AadTenantId            = $vaultCredentialsFileData.RSBackupVaultAADCreds.AadTenantId
     ClientId               = $vaultCredentialsFileData.RSBackupVaultAADCreds.ServicePrincipalClientId
